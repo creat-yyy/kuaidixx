@@ -31,6 +31,8 @@
     <result column="sender_landline_number" jdbcType="VARCHAR" property="senderLandlineNumber" />
     <result column="sender_mobile" jdbcType="VARCHAR" property="senderMobile" />
     <result column="sender_name" jdbcType="VARCHAR" property="senderName" />
+    <result column="com" jdbcType="VARCHAR" property="com" />
+    <result column="outlets" jdbcType="VARCHAR" property="outlets" />
   </resultMap>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
     <!--
@@ -53,7 +55,8 @@
       recipients_full_address, recipients_landline_number, 
       recipients_mobile, recipients_name, remark, 
       send_address, send_full_address, sender_landline_number, 
-      sender_mobile, sender_name)
+      sender_mobile, sender_name, com, 
+      outlets)
     values (#{id,jdbcType=INTEGER}, #{userId,jdbcType=INTEGER}, #{orderNum,jdbcType=BIGINT}, 
       #{price,jdbcType=DECIMAL}, #{priceType,jdbcType=INTEGER}, #{status,jdbcType=INTEGER}, 
       #{paymentTime,jdbcType=TIMESTAMP}, #{endTime,jdbcType=TIMESTAMP}, #{closeTime,jdbcType=TIMESTAMP}, 
@@ -62,7 +65,8 @@
       #{recipientsFullAddress,jdbcType=VARCHAR}, #{recipientsLandlineNumber,jdbcType=VARCHAR}, 
       #{recipientsMobile,jdbcType=VARCHAR}, #{recipientsName,jdbcType=VARCHAR}, #{remark,jdbcType=VARCHAR}, 
       #{sendAddress,jdbcType=VARCHAR}, #{sendFullAddress,jdbcType=VARCHAR}, #{senderLandlineNumber,jdbcType=VARCHAR}, 
-      #{senderMobile,jdbcType=VARCHAR}, #{senderName,jdbcType=VARCHAR})
+      #{senderMobile,jdbcType=VARCHAR}, #{senderName,jdbcType=VARCHAR}, #{com,jdbcType=VARCHAR}, 
+      #{outlets,jdbcType=VARCHAR})
   </insert>
   <update id="updateByPrimaryKey" parameterType="com.kuaidixx.kuaidixx.pojo.order">
     <!--
@@ -93,7 +97,9 @@
       send_full_address = #{sendFullAddress,jdbcType=VARCHAR},
       sender_landline_number = #{senderLandlineNumber,jdbcType=VARCHAR},
       sender_mobile = #{senderMobile,jdbcType=VARCHAR},
-      sender_name = #{senderName,jdbcType=VARCHAR}
+      sender_name = #{senderName,jdbcType=VARCHAR},
+      com = #{com,jdbcType=VARCHAR},
+      outlets = #{outlets,jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
@@ -104,7 +110,8 @@
     select id, user_id, order_num, price, price_type, status, payment_time, end_time, 
     close_time, create_time, update_time, item_type, item_volume, item_weight, recipients_address, 
     recipients_full_address, recipients_landline_number, recipients_mobile, recipients_name, 
-    remark, send_address, send_full_address, sender_landline_number, sender_mobile, sender_name
+    remark, send_address, send_full_address, sender_landline_number, sender_mobile, sender_name, 
+    com, outlets
     from order
     where id = #{id,jdbcType=INTEGER}
   </select>
@@ -116,7 +123,57 @@
     select id, user_id, order_num, price, price_type, status, payment_time, end_time, 
     close_time, create_time, update_time, item_type, item_volume, item_weight, recipients_address, 
     recipients_full_address, recipients_landline_number, recipients_mobile, recipients_name, 
-    remark, send_address, send_full_address, sender_landline_number, sender_mobile, sender_name
+    remark, send_address, send_full_address, sender_landline_number, sender_mobile, sender_name, 
+    com, outlets
     from order
   </select>
+  <select id="findOrderBySendPhone"  resultMap="BaseResultMap">
+    select id, user_id, order_num, price, price_type, status, payment_time, end_time,
+    close_time, create_time, update_time, item_type, item_volume, item_weight, recipients_address,
+    recipients_full_address, recipients_landline_number, recipients_mobile, recipients_name,
+    remark, send_address, send_full_address, sender_landline_number, sender_mobile, sender_name,
+    com, outlets
+    from `order` where sender_mobile=#{sender_mobile,jdbcType=VARCHAR}
+  </select>
+  <select id="findOrderByReceivePhone"  resultMap="BaseResultMap">
+    select id, user_id, order_num, price, price_type, status, payment_time, end_time,
+    close_time, create_time, update_time, item_type, item_volume, item_weight, recipients_address,
+    recipients_full_address, recipients_landline_number, recipients_mobile, recipients_name,
+    remark, send_address, send_full_address, sender_landline_number, sender_mobile, sender_name,
+    com, outlets
+    from `order` where recipients_mobile=#{recipients_mobile,jdbcType=VARCHAR}
+  </select>
+  <select id="findOrderBySendPhoneAndKeyPrimary"  resultMap="BaseResultMap">
+    select id, user_id, order_num, price, price_type, status, payment_time, end_time,
+    close_time, create_time, update_time, item_type, item_volume, item_weight, recipients_address,
+    recipients_full_address, recipients_landline_number, recipients_mobile, recipients_name,
+    remark, send_address, send_full_address, sender_landline_number, sender_mobile, sender_name,
+    com, outlets
+    from `order` where sender_mobile=#{sender_mobile,jdbcType=VARCHAR}
+    and
+    <if test="orderInfo!=null">
+      order_num like '%${orderInfo}%'
+      or recipients_address like  '%${orderInfo}%'
+      or send_address like '%${orderInfo}%'
+      or recipients_name like '%${orderInfo}%'
+      or sender_name like '%${orderInfo}%'
+    </if>
+  </select>
+  <select id="findOrderByReceivePhoneAndKeyPrimary"  resultMap="BaseResultMap">
+    select id, user_id, order_num, price, price_type, status, payment_time, end_time,
+    close_time, create_time, update_time, item_type, item_volume, item_weight, recipients_address,
+    recipients_full_address, recipients_landline_number, recipients_mobile, recipients_name,
+    remark, send_address, send_full_address, sender_landline_number, sender_mobile, sender_name,
+    com, outlets
+    from `order` where recipients_mobile=#{receive_mobile,jdbcType=VARCHAR}
+    and
+    <if test="orderInfo!=null">
+      order_num like '%${orderInfo}%'
+      or recipients_address like  '%${orderInfo}%'
+      or send_address like '%${orderInfo}%'
+      or recipients_name like '%${orderInfo}%'
+      or sender_name like '%${orderInfo}%'
+    </if>
+  </select>
+
 </mapper>
